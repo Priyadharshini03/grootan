@@ -1,0 +1,167 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+    <style>
+     body {
+        background-color: rgb(200, 213, 216);
+        text-align : centre;
+     }
+    </style>
+    <body>
+    <div id="login_div">
+        <h1>Login</h1>
+        <form onsubmit="login();return false;" >
+            <label>Username :</label>
+            <input type="text" id="username" required/>
+            <br>
+            <br>
+
+            <label>Password :</label>
+            <input type="password" id="password" required/>
+            <br>
+            <br>
+            <button type="submit"  >Login</button>
+            <button type="button" onclick="show_register(0);"  >Register</button>
+        </form>
+    </div>
+        
+        <div id="register_div" style="display: none;">
+        <h1>Register User</h1>
+        <br>
+        <p id="register_message"></p>
+        
+        <form onsubmit="register();return false;">
+            <label>Username</label>
+            <input type="text" id="username_reg" placeholder="Username"/>
+            <br><br>
+            <label>Age</label>
+            <input type="text" id="age_reg" placeholder="Age"/>
+            <br><br>
+            <label>DOB</label>
+            <input type="date" id="dob_reg" placeholder="DOB"/>
+            <br><br>
+            <label>First Name</label>
+            <input type="text" id="first_name_reg" placeholder="First Name"/>
+            <br><br>
+            <label>Last Name</label>
+            <input type="text" id="last_name_reg" placeholder="Last Name"/>
+            <br><br>
+            <label>Address Line 1</label>
+            <input type="text" id="addr1_reg" placeholder="Address Line 1"/>
+            <br><br>
+            <label>Address Line 2</label>
+            <input type="text" id="addr2_reg" placeholder="Address Line 2"/>
+            <br><br>
+            <label>Address Line 3</label>
+            <input type="text" id="addr3_reg" placeholder="Address Line 3"/>
+            <br><br>
+            <label>Mobile</label>
+            <input type="text" id="mobile_reg" placeholder="Mobile"/>
+            <br><br>
+            
+            <button type="submit" >Register</button>
+            <button type="button" onclick="show_register(1);">Back</button>
+        </form>
+        </div>
+        <br><br>
+        <div id="userblock" style="display:none;">
+            <h2 >List of Users</h2>
+            <div id="printDetails">
+                
+            </div>
+        </div>
+        <br><br>
+        <div id="userDetails">
+           
+        </div>
+        <br><br><br>
+    </body>
+
+    <script>
+        function show_register(flag){
+            if(flag==0)
+            {
+                $("#register_div").show();
+                $("#login_div").hide();
+            }
+            else{
+                $("#register_div").hide();
+                $("#login_div").show();
+            }
+        }
+
+        function login (){
+           var username = $("#username").val();
+           var password = $("#password").val();
+           var fncode = 'list_users';
+           $("#printDetails").empty();
+           $.ajax({
+               url : 'api.php',
+               type: 'post',
+               data : {username:username,password:password,fncode:fncode},
+               success : function(response)
+               {
+                   var temp = JSON.parse(response);
+                   if(temp.length>0)
+                   {
+                        $('#userblock').show();
+                        for(var i=0;i<temp.length;i++)
+                        {
+                            $("#printDetails").append(
+                                '<p id="user_'+temp[i].user_id+'" onclick="get_user_details('+temp[i].user_id+'); " >'+temp[i].name+'</p>'
+                            );
+                        }
+                    }
+                
+               }
+           });
+        }
+
+        function register(){
+            var username = $("#username_reg").val();
+            var age = $("#age_reg").val();
+            var dob = $("#dob_reg").val();
+            var firstname = $("#first_name_reg").val();
+            var lastname = $("#last_name_reg").val();
+            var address1 = $("#addr1_reg").val();
+            var address2 = $("#addr2_reg").val();
+            var address3 = $("#addr3_reg").val();
+            var mobile = $("#mobile_reg").val();
+            var fncode = 'add_user';
+
+            $.ajax({
+               url : 'api.php',
+               type: 'post',
+               data : {username:username,age:age,fncode:fncode,dob:dob,firstname:firstname,lastname:lastname,address1:address1,address2:address2,address3:address3,mobile:mobile},
+               success : function(response)
+               {
+                   //var temp = JSON.parse(response);
+
+                    $("#register_message").text(response);
+                    login();
+               }
+           });
+
+        }
+
+        function get_user_details(user_id)
+        {
+            var user_id= user_id;
+            var fncode = 'get_user_details';
+            $("#userDetails").empty();
+            $.ajax({
+               url : 'api.php',
+               type: 'post',
+               data : {user_id:user_id,fncode:fncode},
+                success : function(response)
+               {
+                   // var temp = JSON.parse(response);
+
+                    $("#userDetails").append(response);
+                    //login();
+               }
+           });
+        }
+    </script>
+</html>
